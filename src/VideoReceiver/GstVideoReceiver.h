@@ -90,7 +90,7 @@ public:
 public slots:
     virtual void start(const QString& uri, unsigned timeout, int buffer = 0);
     virtual void stop(void);
-    virtual void startDecoding(void* sink);
+    virtual void startDecoding(void* sink, void* additionalSink = nullptr);
     virtual void stopDecoding(void);
     virtual void startRecording(const QString& videoFile, FILE_FORMAT format);
     virtual void stopRecording(void);
@@ -106,7 +106,7 @@ protected:
     virtual GstElement* _makeFileSink(const QString& videoFile, FILE_FORMAT format);
 
     virtual void _onNewSourcePad(GstPad* pad);
-    virtual void _onNewDecoderPad(GstPad* pad);
+    virtual void _onNewDecoderPad();
     virtual bool _addDecoder(GstElement* src);
     virtual bool _addVideoSink(GstPad* pad);
     virtual void _noteTeeFrame(void);
@@ -140,7 +140,11 @@ protected:
     GstElement*         _decoderValve;
     GstElement*         _recorderValve;
     GstElement*         _decoder;
+    GstElement*         _decoderTee;
+    GstElement*         _videoSinkQueue;
     GstElement*         _videoSink;
+    GstElement*         _additionalVideoSinkQueue;
+    GstElement*         _additionalVideoSink;
     GstElement*         _fileSink;
     GstElement*         _pipeline;
 

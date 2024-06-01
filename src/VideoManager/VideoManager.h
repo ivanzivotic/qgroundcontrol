@@ -152,6 +152,8 @@ protected:
     SubtitleWriter          _subtitleWriter;
     VideoReceiver*          _videoReceiver[2]       = { nullptr, nullptr };
     void*                   _videoSink[2]           = { nullptr, nullptr };
+    // PROPOSAL: Additional video sink
+    // void*                   _videoSink[3]           = { nullptr, nullptr, nullptr };
     QString                 _videoUri[2];
     // FIXME: AV: _videoStarted seems to be access from 3 different threads, from time to time
     // 1) Video Receiver thread

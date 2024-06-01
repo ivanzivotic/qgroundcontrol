@@ -60,6 +60,8 @@ VideoManager::VideoManager(QGCApplication* app, QGCToolbox* toolbox)
 //-----------------------------------------------------------------------------
 VideoManager::~VideoManager()
 {
+    // PROPOSAL: Additional video sink
+    //for (int i = 0; i < 3; i++) {
     for (int i = 0; i < 2; i++) {
         if (_videoReceiver[i] != nullptr) {
             delete _videoReceiver[i];
@@ -623,11 +625,17 @@ VideoManager::_initVideo()
     }
 
     QQuickItem* widget = root->findChild<QQuickItem*>("videoContent");
+    // PROPOSAL: Additional video sink
+    // QQuickItem* widget2 = root->findChild<QQuickItem*>("videoContent2");
 
     if (widget != nullptr && _videoReceiver[0] != nullptr) {
         _videoSink[0] = qgcApp()->toolbox()->corePlugin()->createVideoSink(this, widget);
+        // PROPOSAL: Additional video sink
+        // _videoSink[2] = qgcApp()->toolbox()->corePlugin()->createVideoSink(this, widget2);
         if (_videoSink[0] != nullptr) {
             if (_videoStarted[0]) {
+                // PROPOSAL: Additional video sink
+                // _videoReceiver[0]->startDecoding(_videoSink[0], _videoSink[2]);
                 _videoReceiver[0]->startDecoding(_videoSink[0]);
             }
         } else {
