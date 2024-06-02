@@ -389,6 +389,10 @@ GstVideoReceiver::startDecoding(void* sink, void* additionalSink)
 
     if (_needDispatch()) {
         GstElement* videoSink = GST_ELEMENT(sink);
+        GstElement* additionalVideoSink = nullptr;
+        if (additionalSink) {
+            additionalVideoSink = GST_ELEMENT(additionalSink);
+        }
         // gst_object_ref(videoSink);
         _slotHandler.dispatch([this, videoSink, additionalVideoSink]() mutable {
             startDecoding(videoSink, additionalVideoSink);
@@ -420,7 +424,7 @@ GstVideoReceiver::startDecoding(void* sink, void* additionalSink)
 
     if((_videoSinkQueue = gst_element_factory_make("queue", nullptr)) == nullptr)  {
         qCCritical(VideoReceiverLog) << "gst_element_factory_make('queue') failed";
-        break;
+        return;
     }
 
     GstElement* videoSink = GST_ELEMENT(sink);
@@ -436,7 +440,7 @@ GstVideoReceiver::startDecoding(void* sink, void* additionalSink)
     if (additionalSink) {
         if((_additionalVideoSinkQueue = gst_element_factory_make("queue", nullptr)) == nullptr)  {
             qCCritical(VideoReceiverLog) << "gst_element_factory_make('queue') failed";
-            break;
+            return;
         }
 
         GstElement* additionalVideoSink = GST_ELEMENT(additionalSink);
