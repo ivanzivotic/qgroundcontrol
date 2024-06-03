@@ -1112,12 +1112,7 @@ GstVideoReceiver::_onNewDecoderPad()
         qCCritical(VideoReceiverLog) << "Unable to link decoder tee";
     }
 
-    GstPad* pad;
-    if ((pad = gst_element_get_static_pad(_decoderTee, "src")) == nullptr) {
-        qCCritical(VideoReceiverLog) << "gst_element_get_static_pad() failed";
-    }
-
-    if (!_addVideoSink(pad)) {
+    if (!_addVideoSink()) {
         qCCritical(VideoReceiverLog) << "_addVideoSink() failed";
     }
 }
@@ -1196,10 +1191,8 @@ GstVideoReceiver::_addDecoder(GstElement* src)
 }
 
 bool
-GstVideoReceiver::_addVideoSink(GstPad* pad)
+GstVideoReceiver::_addVideoSink()
 {
-    GstCaps* caps = gst_pad_query_caps(pad, nullptr);
-
     gst_object_ref(_videoSinkQueue);
     gst_object_ref(_videoSink); // gst_bin_add() will steal one reference
 
@@ -1208,10 +1201,6 @@ GstVideoReceiver::_addVideoSink(GstPad* pad)
     if(!gst_element_link_many(_decoderTee, _videoSinkQueue, _videoSink, nullptr)) {
         gst_bin_remove_many(GST_BIN(_pipeline), _videoSinkQueue, _videoSink, nullptr);
         qCCritical(VideoReceiverLog) << "Unable to link video sink queue";
-        if (caps != nullptr) {
-            gst_caps_unref(caps);
-            caps = nullptr;
-        }
         return false;
     }
 
@@ -1226,13 +1215,9 @@ GstVideoReceiver::_addVideoSink(GstPad* pad)
 
         gst_bin_add_many(GST_BIN(_pipeline), _additionalVideoSinkQueue, _additionalVideoSink, nullptr);
 
-        if(!gst_element_link_many(_tee, _additionalVideoSinkQueue, _additionalVideoSink, nullptr)) {
+        if(!gst_element_link_many(_decoderTee, _additionalVideoSinkQueue, _additionalVideoSink, nullptr)) {
             gst_bin_remove_many(GST_BIN(_pipeline), _additionalVideoSinkQueue, _additionalVideoSink, nullptr);
             qCCritical(VideoReceiverLog) << "Unable to link additional video sink queue";
-            if (caps != nullptr) {
-                gst_caps_unref(caps);
-                caps = nullptr;
-            }
             return false;
         }
 
@@ -1258,9 +1243,6 @@ GstVideoReceiver::_addVideoSink(GstPad* pad)
                 emit videoSizeChanged(QSize(width, height));
             });
         }
-
-        gst_caps_unref(caps);
-        caps = nullptr;
     } else {
         _dispatchSignal([this](){
             emit videoSizeChanged(QSize(0, 0));
