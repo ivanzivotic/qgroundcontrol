@@ -1112,6 +1112,8 @@ GstVideoReceiver::_onNewDecoderPad()
         qCCritical(VideoReceiverLog) << "Unable to link decoder tee";
     }
 
+    gst_element_sync_state_with_parent(_decoderTee);
+
     if (!_addVideoSink()) {
         qCCritical(VideoReceiverLog) << "_addVideoSink() failed";
     }
